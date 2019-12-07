@@ -1,0 +1,157 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="author" content="stantnks@gmail.com" />
+    <title>API-EXPORT</title>
+    <link rel="stylesheet" href="./bootstrap-3.3.7-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
+    <style type="text/css">
+        body, pre {
+            font: 1em/1.5 Consolas;
+        }
+
+        .api {
+            margin: 50px 2%;
+        }
+
+        table tr td:first-child {
+            width: 20%;
+        }
+    </style>
+    <script src="./angularjs/angular.min.js"></script>
+    <script src="./jquery/jquery-v1.12.4.js"></script>
+    <script src="./bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
+</head>
+<body>
+<input id="swaggerDocs" type="hidden" th:value="${swaggerDocs}"/>
+<div ng-app="myApp" ng-controller="apiController">
+    <div class="panel panel-{{(api.method == 'post' || api.method == 'put') ? 'warning' : api.method == 'delete' ? 'danger' : 'info'}} api"
+         ng-repeat="api in apis">
+        <div class="panel-heading"><h3 class="panel-title">{{api.info.summary}}</h3></div>
+        <div class="panel-body">
+            <table class="table table-bordered">
+                <tr>
+                    <td colspan="5" style="text-align: center">基本信息</td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;">接口请求方法</td>
+                    <td colspan="4" style="text-align: left;">{{api.method.toUpperCase()}}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;">接口请求地址</td>
+                    <td colspan="4" style="text-align: left;">{{'http://'+api.path}}</td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;">请求媒体类型</td>
+                    <td colspan="4" style="text-align: left;">{{api.info.consumes ? api.info.consumes.join(", ") :
+                        '*/*'}}
+                    </td>
+                </tr>
+                <tr>
+                    <td style="text-align: right;">响应媒体类型</td>
+                    <td colspan="4" style="text-align: left;">{{api.info.produces ? api.info.produces.join(", ") :
+                        '*/*'}}
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="5">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="text-align: center">请求参数</td>
+                </tr>
+                <tr>
+                    <th style="text-align: center;">名称</th>
+                    <th style="text-align: center;">类型</th>
+                    <th style="text-align: center;">是否必填</th>
+                    <th style="text-align: center;">示例</th>
+                    <th style="text-align: center;">默认值</th>
+                </tr>
+                <tr ng-repeat="parameter in api.info.parameters">
+                    <td style="text-align: center;">{{parameter.name}}</td>
+                    <td style="width: 20%;text-align: center;">{{parameter.in}}</td>
+                    <td style="width: 20%;text-align: center;">{{parameter.required}}</td>
+                    <td style="width: 20%;text-align: left;" ng-if="parameter.inFormat==1">
+                        <pre>{{parameter.type}}</pre>
+                    </td>
+                    <td style="width: 20%;text-align: center;" ng-if="parameter.inFormat==0">
+                        {{parameter.type}}
+                    </td>
+                    <td style="width: 20%;text-align: center;">{{parameter.default ? parameter.default : ''}}</td>
+                </tr>
+                <tr>
+                    <td colspan="5">&nbsp;</td>
+                </tr>
+                <tr>
+                    <td colspan="5" style="text-align: center">响应参数</td>
+                </tr>
+                <tr>
+                    <td colspan="5" ng-if="api.info.outFormat==1">
+                        <pre>{{api.info.outHtml}}</pre>
+                    </td>
+                    <td colspan="5" ng-if="api.info.outFormat==0">
+                        {{api.info.outHtml}}
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+    var myAppModule = angular.module("myApp", []);
+    myAppModule.controller('apiController', function ($scope, $http) {
+        $http.get($('#swaggerDocs').val()).success(function (data) {
+            var dL = '#/definitions/'.length;
+            var host = data.host;
+            var basePath = data.basePath;
+            var info;
+            var apis = [];
+            var tPaths = data.paths;
+            for (var i in tPaths) {
+                for (var m in tPaths[i]) {
+                    if (i == '/api-export') {
+                        continue;
+                    }
+                    info = tPaths[i][m];
+                    for (var k in info.parameters) {
+                        var parameter = info.parameters[k];
+                        var type;
+                        var inFormat = 0;
+                        if (parameter.type) {
+                            type = parameter.type;
+                        } else {
+                            var ref = parameter.schema['$ref'];
+                            var refKey = ref.substr(dL, ref.length);
+                            type = JSON.stringify(data.definitions[refKey].properties, null, 2);
+                            inFormat = 1;
+                        }
+                        parameter.type = type;
+                        parameter.inFormat = inFormat;
+                    }
+                    var outFormat = 0;
+                    var outHtml;
+                    var resSchemaType = info.responses['200'].schema.type;
+                    if (resSchemaType) {
+                        outHtml = info.responses['200'].schema.type;
+                    } else {
+                        var ref = info.responses['200'].schema['$ref'];
+                        var refKey = ref.substr(dL, ref.length);
+                        outHtml = JSON.stringify(data.definitions[refKey].properties, null, 2);
+                        outFormat = 1;
+                    }
+                    info.outHtml = outHtml;
+                    info.outFormat = outFormat;
+                    apis.push({
+                        path: (basePath == '/' ? (host + i) : (host + basePath + i)),
+                        method: m,
+                        info: info
+                    });
+                }
+            }
+            $scope.apis = apis;
+            $scope.data = data;
+        });
+    });
+</script>
