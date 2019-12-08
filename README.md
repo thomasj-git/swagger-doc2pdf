@@ -3,13 +3,26 @@
 
 # 使用
 ## 构建安装到本地仓库
+    # 获取代码
     git clone https://github.com/thomasj-git/swagger-doc2pdf.git
     cd swagger-doc2pdf
     mvn -DskipTests=true package
+       
     # 本地安装
-    mvn install:install-file  -Dfile=target\swagger-doc2pdf-1.0.jar  -DgroupId=com.github.thomasj  -DartifactId=swagger-doc2pdf -Dversion=1.0 -Dpackaging=jar
+    mvn install:install-file  \
+    -Dfile=target\swagger-doc2pdf-1.0.jar  \
+    -DgroupId=com.github.thomasj  \
+    -DartifactId=swagger-doc2pdf \
+    -Dversion=1.0 -Dpackaging=jar
+       
     # 安装远程私库
-    mvn deploy:deploy-file -DgroupId=com.github.thomasj -DartifactId=swagger-doc2pdf -Dversion=1.0 -Dpackaging=jar -Dfile=target\swagger-doc2pdf-1.0.jar -Durl=${远程私库地址} -DrepositoryId=${仓库ID}
+    mvn deploy:deploy-file \
+    -DgroupId=com.github.thomasj \
+    -DartifactId=swagger-doc2pdf \
+    -Dversion=1.0 \
+    -Dpackaging=jar -Dfile=target\swagger-doc2pdf-1.0.jar \
+    -Durl=${远程私库地址} \
+    -DrepositoryId=${仓库ID}
 ## maven依赖最新版
     <dependency>
         <groupId>com.github.thomasj</groupId>
