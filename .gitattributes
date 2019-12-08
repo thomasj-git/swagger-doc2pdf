@@ -1,0 +1,8 @@
+*.js linguist-language=java
+*.css linguist-language=java
+*.html linguist-language=java
+*.eot linguist-language=java
+*.svg linguist-language=java
+*.ttf linguist-language=java
+*.woff linguist-language=java
+*.woff2 linguist-language=java
