@@ -12,7 +12,12 @@
         }
 
         .api {
-            margin: 50px 2%;
+            margin: 10px 2%;
+        }
+
+        button{
+            margin-top: 10px;
+            margin-left: 2%;
         }
 
         table tr td:first-child {
@@ -24,6 +29,7 @@
     <script src="./bootstrap-3.3.7-dist/js/bootstrap.min.js"></script>
 </head>
 <body>
+<button type="button" class="btn btn-default" onclick="window.print();">另存为PDF</button>
 <input id="swaggerDocs" type="hidden" th:value="${swaggerDocs}"/>
 <div ng-app="myApp" ng-controller="apiController">
     <div class="panel panel-{{(api.method == 'post' || api.method == 'put') ? 'warning' : api.method == 'delete' ? 'danger' : 'info'}} api"
