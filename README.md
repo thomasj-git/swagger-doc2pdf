@@ -2,15 +2,14 @@
     无缝集成到springboot工程，只需简单配置，访问指定端点即可
 
 # 使用
-## 构建安装到本地仓库
-# 获取代码
+## 获取安装
 ```Bash
 git clone https://github.com/thomasj-git/swagger-doc2pdf.git
 cd swagger-doc2pdf
 mvn -DskipTests=true package
 ```
        
-# 本地安装
+## 本地安装
 ```Bash
 mvn install:install-file  \
 -Dfile=target\swagger-doc2pdf-1.0.jar  \
@@ -19,7 +18,7 @@ mvn install:install-file  \
 -Dversion=1.0 -Dpackaging=jar
 ```
        
-# 安装远程私库
+## 安装远程私库
 ```Bash
 mvn deploy:deploy-file \
 -DgroupId=com.github.thomasj \
