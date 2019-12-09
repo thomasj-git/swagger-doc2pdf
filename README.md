@@ -57,4 +57,4 @@ APIExportCtrl apiExportCtrl(){
     然后通过chrome浏览器打印网页，另存为pdf即可，再借助其他工具将pdf转成word
     
 ![image](https://github.com/thomasj-git/swagger-doc2pdf/blob/master/src/main/resources/static/demo/export.png)
-![image](https://github.com/thomasj-git/swagger-doc2pdf/blob/master/src/main/resources/static/demo/pdf-save.png)
+![image](https://github.com/thomasj-git/swagger-doc2pdf/blob/master/src/main/resources/static/demo/pdf.png)
