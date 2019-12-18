@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <meta name="author" content="stantnks@gmail.com" />
+    <meta name="author" content="stantnks@gmail.com"/>
     <title>API-EXPORT</title>
     <link rel="stylesheet" href="./bootstrap-3.3.7-dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="./bootstrap-3.3.7-dist/css/bootstrap-theme.min.css">
@@ -15,7 +15,7 @@
             margin: 10px 2%;
         }
 
-        button{
+        button {
             margin-top: 10px;
             margin-left: 2%;
         }
@@ -107,9 +107,9 @@
 </html>
 <script type="text/javascript">
     var myAppModule = angular.module("myApp", []);
+    var dL = '#/definitions/'.length;
     myAppModule.controller('apiController', function ($scope, $http) {
         $http.get($('#swaggerDocs').val()).success(function (data) {
-            var dL = '#/definitions/'.length;
             var host = data.host;
             var basePath = data.basePath;
             var info;
@@ -130,7 +130,11 @@
                         } else {
                             var ref = parameter.schema['$ref'];
                             var refKey = ref.substr(dL, ref.length);
-                            type = JSON.stringify(data.definitions[refKey].properties, null, 2);
+                            try {
+                                type = JSON.stringify(entryDefinitions(data, data.definitions[refKey].properties), null, 2);
+                            } catch (e) {
+                                console.error(e);
+                            }
                             inFormat = 1;
                         }
                         parameter.type = type;
@@ -144,7 +148,11 @@
                     } else {
                         var ref = info.responses['200'].schema['$ref'];
                         var refKey = ref.substr(dL, ref.length);
-                        outHtml = JSON.stringify(data.definitions[refKey].properties, null, 2);
+                        try {
+                            outHtml = JSON.stringify(entryDefinitions(data, data.definitions[refKey].properties), null, 2);
+                        } catch (e) {
+                            console.error(e);
+                        }
                         outFormat = 1;
                     }
                     info.outHtml = outHtml;
@@ -159,5 +167,21 @@
             $scope.apis = apis;
             $scope.data = data;
         });
+
+        function entryDefinitions(data, properties) {
+            for (var key in properties) {
+                var val = properties[key];
+                if (val['$ref']) {
+                    properties[key] = data.definitions[val['$ref'].substr(dL, val['$ref'].length)];
+                    entryDefinitions(data, properties[key].properties);
+                } else if (val.items && val.items['$ref']) {
+                    var array = [];
+                    array.push(data.definitions[val.items['$ref'].substr(dL, val.items['$ref'].length)]);
+                    properties[key] = array;
+                    entryDefinitions(data, properties[key][0].properties);
+                }
+            }
+            return properties;
+        }
     });
 </script>
