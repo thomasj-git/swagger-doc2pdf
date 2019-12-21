@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class APIExportCtrl {
 
-	@Value ("${swagger.api-docs:/v2/api-docs}")
+	@Value ("${swagger.api-docs:v2/api-docs}")
 	private String swaggerDocs;
 
 	@GetMapping ("/api-export")
